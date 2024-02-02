@@ -10,7 +10,7 @@ var sendJSONresponse = function (res, status, content) {
     res.json(content);
 
 };
-module.exports.register = function (req, res,next) {
+module.exports.register = function (req,res,next) {
     if (!req.body.name || !req.body.email || !req.body.password) {
         next(createHttpError(400, {
             "message": "All fields required"
@@ -21,13 +21,15 @@ module.exports.register = function (req, res,next) {
     newUser.email = email;
     newUser.name = req.body.name;
     newUser.setPassword(req.body.password);
-    newUser.save((err) => {
-        if (err) next(createError(400, err)); //res.status(400).json(err);
+    newUser.sa
+    newUser.save().then(usr=>{
         var token = newUser.generateWebToken();
         res.status(200);
         res.json({
             "token": token
         });
+    }).catch((err) => {
+         next(createError(400, err)); //res.status(400).json(err);
     });
 };
 
@@ -41,8 +43,10 @@ module.exports.login = function (req, res,next) {
         return;
     }
     passport.authenticate('local', function (err, user, info) {
-        if (err)
-            next(err);//res.status(404).json(err);
+        if (err){
+            next(err);
+            //res.status(404).json(err)
+        }
         if (!user)
             res.status(400).json(info)
         else {
@@ -53,5 +57,5 @@ module.exports.login = function (req, res,next) {
             });
         }
 
-    })(req, res);
+    })(req, res,next);
 };

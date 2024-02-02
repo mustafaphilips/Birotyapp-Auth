@@ -9,22 +9,21 @@ var auth = jwt({
 });
 var obj = require('../controllers/authentication');
 /* GET users listing. */
-router.get('/:id', auth, function (req, res) {
+router.get('/:id', auth, function (req, res,next) {
     if (!req.payload._id)
         res.status(401).json({
             "message": 'user not authorized'
         });
     else {
-        user.findById(req.params.id, (err, item) => {
-            if (err) res.status(400).json(err);
+        user.findById(req.params.id).then(item => {
             if (item) {
                 res.status(200)
                 res.json({
                     user: item
                 });
             }
-
-        });
+        })
+        .catch(err=>next(err));
     }
 });
 router.get('/', auth, function (req, res) {
@@ -33,18 +32,17 @@ router.get('/', auth, function (req, res) {
             "message": 'user not authorized'
         });
     else {
-        user.findById(req.payload._id, (err, item) => {
-            if (err) res.status(400).json(err);
+        user.findById(req.payload._id).then(item=> {
             if (item)
-                user.find((err1, list) => {
-                    if (err1)
-                        res.status(400).json(err1);
+                user.find({}).then(list => {
                     res.status(200)
                     res.json({
                         users: list
                     });
-                });
-        });
+                })
+                .catch(err=>next(err));//error getting users lists
+        })
+        .catch(err=>next(err));//could not find loggedin user in db
     }
 });
 

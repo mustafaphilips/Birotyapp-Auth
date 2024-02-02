@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var passport = require('passport');
 require('./models/db');
-require('./models/users');
+require('./configs/passport');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
